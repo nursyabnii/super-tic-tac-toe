@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <title>Super Tic-Tac-Toe Neon</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="game-container">
+        <h1>Super Tic-Tac-Toe</h1>
+
+        <div class="status-panel">
+            <p id="status-message">Pilih mode permainan</p>
+        </div>
+
+        <div class="large-board" id="large-board">
+        </div>
+
+        <div class="controls">
+            <button id="restart-button">Mulai Ulang</button>
+            <button id="rules-button">Aturan</button>
+        </div>
+        <br>
+        <p class="copyright">Copyright &copy;
+            2025 Dibuat oleh NB ♡
+        </p>
+    </div>
+
+
+    <div id="mode-selection" class="mode-overlay">
+        <div class="mode-content">
+            <h2>Pilih Mode Permainan</h2>
+            <button id="vs-player">2 Player</button>
+            <button id="vs-ai">Lawan AI</button>
+        </div>
+    </div>
+
+    <div id="rules-overlay" class="mode-overlay" style="display: none;">
+        <div class="mode-content rules-content">
+            <h2>Aturan Permainan</h2>
+            <ul>
+                <li>Permainan ini adalah Tic-Tac-Toe di dalam Tic-Tac-Toe.</li>
+                <li>Untuk memenangkan permainan besar, Anda harus memenangkan 3 papan kecil dalam satu baris
+                    (horizontal, vertikal, atau diagonal).</li>
+                <li>Gerakan pertama bebas di sel mana saja.</li>
+                <li><b>Aturan Kunci:</b> Sel mana yang Anda pilih di papan *kecil* (misal: sel kiri-atas) akan
+                    menentukan ke papan *besar* mana lawan Anda harus bermain selanjutnya (yaitu papan besar kiri-atas).
+                </li>
+                <li>Jika papan besar yang dituju sudah dimenangkan atau seri, lawan boleh memilih bermain di papan besar
+                    *mana saja* yang masih aktif.</li>
+            </ul>
+            <button id="close-rules-button">Mengerti</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

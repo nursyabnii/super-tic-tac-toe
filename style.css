@@ -1,0 +1,290 @@
+:root {
+    --bg-color: #0a0a1a;
+    /* Biru sangat gelap */
+    --grid-color: #4040ff;
+    /* Neon biru untuk grid */
+    --x-color: #00ffff;
+    /* Cyan/Neon Biru untuk X */
+    --o-color: #ff00ff;
+    /* Magenta/Neon Pink untuk O */
+    --text-color: #f0f0f0;
+    --highlight-color: rgba(255, 255, 0, 0.3);
+    /* Kuning transparan */
+    --win-overlay: rgba(20, 20, 40, 0.7);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding-top: 20px;
+    padding-bottom: 20px;
+    /* Tambahan: Beri ruang di bawah */
+}
+
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    width: 100%;
+}
+
+h1 {
+    font-size: 2.5rem;
+    color: var(--text-color);
+    text-shadow: 0 0 10px var(--grid-color), 0 0 20px var(--grid-color);
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.status-panel {
+    margin-bottom: 15px;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    border: 1px solid var(--grid-color);
+}
+
+#status-message {
+    font-size: 1.2rem;
+    min-height: 1.5em;
+    text-align: center;
+}
+
+/* ================================== */
+/* === PERBAIKAN UTAMA (DIGANTI DARI VW KE VMIN) === */
+/* ================================== */
+.large-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 8px;
+    padding: 8px;
+    background-color: #000;
+    border: 3px solid var(--grid-color);
+    border-radius: 10px;
+    box-shadow: 0 0 15px var(--grid-color), 0 0 25px var(--grid-color) inset;
+
+    /* MENGGUNAKAN VMIN (VIEWPORT MINIMUM) */
+    width: 90vmin;
+    /* 90% dari dimensi terkecil (lebar atau tinggi) */
+    height: 90vmin;
+    /* 90% dari dimensi terkecil (lebar atau tinggi) */
+
+    /* Kita tetap batasi ukuran maksimumnya */
+    max-width: 700px;
+    max-height: 700px;
+
+    aspect-ratio: 1 / 1;
+}
+
+.small-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+    gap: 4px;
+    background: var(--bg-color);
+    border: 2px solid var(--grid-color);
+    border-radius: 5px;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.small-board.active {
+    background: var(--highlight-color);
+    box-shadow: 0 0 25px yellow inset, 0 0 10px yellow inset;
+    border-color: yellow;
+}
+
+.cell {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* MENGGUNAKAN VMIN (VIEWPORT MINIMUM) */
+    font-size: 5vmin;
+    /* Ukuran font X/O kini proporsional */
+
+    font-weight: bold;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    aspect-ratio: 1 / 1;
+    user-select: none;
+}
+
+/* Media query ini sekarang HANYA untuk H1, 
+   karena VMIN sudah menangani font .cell secara otomatis */
+@media (min-width: 600px) {
+    h1 {
+        font-size: 3.5rem;
+    }
+}
+
+.cell:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.cell.x {
+    color: var(--x-color);
+    text-shadow: 0 0 10px var(--x-color), 0 0 20px var(--x-color);
+}
+
+.cell.o {
+    color: var(--o-color);
+    text-shadow: 0 0 10px var(--o-color), 0 0 20px var(--o-color);
+}
+
+.small-board .win-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* MENGGUNAKAN VMIN (VIEWPORT MINIMUM) */
+    font-size: 15vmin;
+    /* Font pemenang juga proporsional */
+
+    font-weight: bold;
+    background: var(--win-overlay);
+    border-radius: 5px;
+    pointer-events: none;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: all 0.3s ease;
+}
+
+/* Media query ini tidak lagi diperlukan karena VMIN */
+/* @media (min-width: 600px) {
+    .small-board .win-overlay {
+        font-size: 8rem;
+    }
+} */
+
+/* ================================== */
+/* === AKHIR PERBAIKAN === */
+/* ================================== */
+
+
+.small-board.won.x .win-overlay {
+    color: var(--x-color);
+    text-shadow: 0 0 15px var(--x-color), 0 0 30px var(--x-color);
+    opacity: 1;
+    transform: scale(1);
+}
+
+.small-board.won.o .win-overlay {
+    color: var(--o-color);
+    text-shadow: 0 0 15px var(--o-color), 0 0 30px var(--o-color);
+    opacity: 1;
+    transform: scale(1);
+}
+
+.small-board.draw .win-overlay {
+    color: #888;
+    text-shadow: none;
+    opacity: 1;
+    transform: scale(1);
+}
+
+.controls {
+    margin-top: 20px;
+    display: flex;
+    gap: 15px;
+}
+
+button {
+    font-size: 1.1rem;
+    padding: 10px 25px;
+    margin: 0;
+    border: 2px solid var(--grid-color);
+    border-radius: 5px;
+    background: transparent;
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 0 5px var(--grid-color), 0 0 10px var(--grid-color) inset;
+}
+
+button:hover {
+    background: var(--grid-color);
+    color: var(--bg-color);
+    box-shadow: 0 0 10px var(--grid-color), 0 0 20px var(--grid-color);
+}
+
+.mode-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+    padding: 15px;
+}
+
+.mode-content {
+    background: var(--bg-color);
+    padding: 30px;
+    border-radius: 10px;
+    border: 2px solid var(--grid-color);
+    box-shadow: 0 0 20px var(--grid-color);
+    text-align: center;
+    max-width: 95vw;
+}
+
+.mode-content h2 {
+    margin-bottom: 30px;
+    text-shadow: 0 0 10px var(--grid-color);
+}
+
+.mode-content button {
+    display: block;
+    width: 100%;
+    margin: 15px 0;
+    font-size: 1.2rem;
+}
+
+.rules-content {
+    text-align: left;
+    max-width: 500px;
+}
+
+.rules-content h2 {
+    text-align: center;
+}
+
+.rules-content ul {
+    list-style-position: inside;
+    margin: 20px 0;
+}
+
+.rules-content li {
+    margin-bottom: 12px;
+    line-height: 1.5;
+}
+
+.rules-content button {
+    display: block;
+    width: 100%;
+    margin-top: 20px;
+}
