@@ -44,11 +44,12 @@ Proyek ini adalah situs web statis murni. Tidak diperlukan server atau proses *b
 4.  **Buka file `index.html`** di browser favorit Anda.
 5.  Selesai!
 
----
+
 
 ## 📂 Struktur File
+```
 / ├── index.html (Struktur utama HTML) ├── style.css (Semua style neon dan layout responsif) ├── script.js (Logika game, state, AI, dan audio) └── sounds/ ├── click.wav ├── win.wav ├── lose.wav └── draw.wav
----
+```
 
 ## 🛠️ Teknologi yang Digunakan
 
