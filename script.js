@@ -20,26 +20,17 @@ document.addEventListener('DOMContentLoaded', () => {
     let gameOver = false;
     let gameStarted = false;
 
-    // ===================================================
-    // === PERUBAHAN AUDIO DIMULAI DI SINI ===
-    // ===================================================
-
-    // HAPUS: const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    // (Baris di atas telah dihapus)
-
-    // BARU: Pre-load semua file suara untuk performa lebih baik
-    // BARU: Pre-load semua file suara dari folder 'sounds'
+    // --- Audio ---
     const soundClick = new Audio('sounds/click.wav');
     const soundWin = new Audio('sounds/win.wav');
     const soundLose = new Audio('sounds/lose.wav');
     const soundDraw = new Audio('sounds/draw.wav');
 
-    // DIUBAH TOTAL: Fungsi playSound sekarang menggunakan file eksternal
     function playSound(type) {
         try {
             switch (type) {
                 case 'click':
-                    soundClick.currentTime = 0; // Reset agar bisa dimainkan berulang kali dgn cepat
+                    soundClick.currentTime = 0;
                     soundClick.play();
                     break;
                 case 'win':
@@ -57,13 +48,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } catch (e) {
             console.error("Tidak dapat memutar suara: ", e);
-            // Ini akan mencegah game crash jika file suara gagal dimuat
         }
     }
-
-    // ===================================================
-    // === PERUBAHAN AUDIO SELESAI ===
-    // ===================================================
 
 
     // --- Inisialisasi Game ---
@@ -113,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        playSound('click'); // <--- Ini akan memanggil fungsi baru
+        playSound('click');
         smallBoardsState[largeIndex][smallIndex] = currentPlayer;
         updateCellDOM(largeIndex, smallIndex);
 
@@ -162,64 +148,110 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // --- Logika AI (Medium) ---
+
+    // ===================================================
+    // === FUNGSI AI YANG DIPERBARUI ===
+    // ===================================================
+
     function makeAIMove() {
         if (gameOver) return;
 
-        let bestMove = null;
         const validMoves = getValidMoves();
         if (validMoves.length === 0) return;
 
+        // --- Prioritas AI (dari tertinggi ke terendah) ---
+
+        // Prioritas 1: Cari langkah untuk MEMENANGKAN SELURUH PERMAINAN
+        for (const move of validMoves) {
+            // Cek: Apakah langkah ini memenangkan papan kecil?
+            if (isWinningMove(smallBoardsState[move.largeIndex], move.smallIndex, 'O')) {
+                // Cek: Jika YA, apakah kemenangan papan kecil itu juga MEMENANGKAN PAPAN BESAR?
+                if (isWinningMove(largeBoardState, move.largeIndex, 'O')) {
+                    handleCellClick(move.largeIndex, move.smallIndex);
+                    return;
+                }
+            }
+        }
+
+        // Prioritas 2: Cari langkah untuk MEMBLOKIR KEMENANGAN PEMAIN
+        for (const move of validMoves) {
+            // Cek: Apakah langkah ini memblokir pemain memenangkan papan kecil?
+            if (isWinningMove(smallBoardsState[move.largeIndex], move.smallIndex, 'X')) {
+                // Cek: Jika YA, apakah blokir itu juga MEMBLOKIR KEMENANGAN PAPAN BESAR pemain?
+                if (isWinningMove(largeBoardState, move.largeIndex, 'X')) {
+                    handleCellClick(move.largeIndex, move.smallIndex);
+                    return;
+                }
+            }
+        }
+
+        // Prioritas 3: Cari langkah untuk MEMENANGKAN PAPAN KECIL
+        // (Kita simpan daftarnya agar bisa dievaluasi, tapi untuk sekarang ambil yang pertama)
+        let smallWinMoves = [];
         for (const move of validMoves) {
             if (isWinningMove(smallBoardsState[move.largeIndex], move.smallIndex, 'O')) {
-                bestMove = move;
-                break;
+                smallWinMoves.push(move);
+            }
+        }
+        if (smallWinMoves.length > 0) {
+            // (Idealnya, AI akan mengecek 'smallWinMove' mana yang paling strategis)
+            // (Untuk saat ini, ambil saja yang pertama)
+            handleCellClick(smallWinMoves[0].largeIndex, smallWinMoves[0].smallIndex);
+            return;
+        }
+
+        // Prioritas 4: Cari langkah untuk MEMBLOKIR KEMENANGAN PAPAN KECIL PEMAIN
+        let smallBlockMoves = [];
+        for (const move of validMoves) {
+            if (isWinningMove(smallBoardsState[move.largeIndex], move.smallIndex, 'X')) {
+                smallBlockMoves.push(move);
+            }
+        }
+        if (smallBlockMoves.length > 0) {
+            // (Idealnya, AI akan mengecek 'smallBlockMove' mana yang paling strategis)
+            // (Untuk saat ini, ambil saja yang pertama)
+            handleCellClick(smallBlockMoves[0].largeIndex, smallBlockMoves[0].smallIndex);
+            return;
+        }
+
+        // Prioritas 5: Coba kirim pemain ke papan yang sudah selesai/penuh
+        for (const move of validMoves) {
+            if (largeBoardState[move.smallIndex] !== null) {
+                handleCellClick(move.largeIndex, move.smallIndex);
+                return;
             }
         }
 
-        if (!bestMove) {
-            for (const move of validMoves) {
-                if (isWinningMove(smallBoardsState[move.largeIndex], move.smallIndex, 'X')) {
-                    bestMove = move;
-                    break;
-                }
-            }
+        // Prioritas 6: Ambil tengah papan kecil yang aktif
+        const centerMove = validMoves.find(m => m.smallIndex === 4);
+        if (centerMove) {
+            handleCellClick(centerMove.largeIndex, centerMove.smallIndex);
+            return;
         }
 
-        if (!bestMove) {
-            for (const move of validMoves) {
-                if (largeBoardState[move.smallIndex] !== null) {
-                    bestMove = move;
-                    break;
-                }
-            }
-        }
-
-        if (!bestMove) {
-            const centerMove = validMoves.find(m => m.smallIndex === 4);
-            if (centerMove) {
-                bestMove = centerMove;
-            }
-        }
-
-        if (!bestMove) {
-            bestMove = validMoves[Math.floor(Math.random() * validMoves.length)];
-        }
-
-        handleCellClick(bestMove.largeIndex, bestMove.smallIndex);
+        // Prioritas 7: Jika tidak ada langkah strategis, ambil langkah acak
+        const randomMove = validMoves[Math.floor(Math.random() * validMoves.length)];
+        handleCellClick(randomMove.largeIndex, randomMove.smallIndex);
     }
+
+    // ===================================================
+    // === AKHIR FUNGSI AI YANG DIPERBARUI ===
+    // ===================================================
+
 
     function getValidMoves() {
         const moves = [];
         if (nextSmallBoardIndex !== null) {
+            // Hanya bisa main di satu papan kecil
             for (let j = 0; j < 9; j++) {
                 if (smallBoardsState[nextSmallBoardIndex][j] === null) {
                     moves.push({ largeIndex: nextSmallBoardIndex, smallIndex: j });
                 }
             }
         } else {
+            // Bisa main di papan mana saja yang belum selesai
             for (let i = 0; i < 9; i++) {
-                if (largeBoardState[i] === null) {
+                if (largeBoardState[i] === null) { // Cek apakah papan besarnya 'null' (belum dimenangkan)
                     for (let j = 0; j < 9; j++) {
                         if (smallBoardsState[i][j] === null) {
                             moves.push({ largeIndex: i, smallIndex: j });
@@ -231,7 +263,17 @@ document.addEventListener('DOMContentLoaded', () => {
         return moves;
     }
 
+    /**
+     * Helper untuk MENGECEK APAKAH sebuah langkah akan MENANG di papan TERTENTU.
+     * @param {Array} board - Papan yang akan dicek (bisa largeBoardState atau smallBoardsState[i])
+     * @param {number} index - Posisi langkah (0-8)
+     * @param {string} player - Pemain ('X' atau 'O')
+     * @returns {boolean} - True jika langkah itu menang
+     */
     function isWinningMove(board, index, player) {
+        // Jangan cek jika sudah terisi
+        if (board[index] !== null) return false;
+
         const tempBoard = [...board];
         tempBoard[index] = player;
         return checkWinner(tempBoard) === player;
