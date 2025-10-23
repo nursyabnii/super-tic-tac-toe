@@ -3,7 +3,6 @@
 Ini adalah implementasi web dari game klasik "Super Tic-Tac-Toe" (juga dikenal sebagai Ultimate Tic-Tac-Toe). Dibuat dengan desain neon yang modern, responsif untuk seluler, dan dilengkapi dengan AI sederhana.
 
 ![Super Tic-Tac-Toe Screenshot](screenshot.png)
-*(Catatan: Ganti `screenshot.png` dengan nama file screenshot Anda sendiri)*
 
 ---
 
